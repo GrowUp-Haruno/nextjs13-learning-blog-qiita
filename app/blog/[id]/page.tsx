@@ -1,13 +1,31 @@
+import { getPost, getPosts } from '../../../src/lib/getJsonPlaceholder';
+import styles from '../../page.module.css';
+
 type paramsType = {
   id: string;
 };
 
 export async function generateStaticParams(): Promise<paramsType[]> {
-  return [{ id: '1' }, { id: '2' }];
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    id: post.id.toString(),
+  }));
 }
 
-const page = ({ params }: { params: paramsType }) => {
-  return <div>blog記事:その{params.id}</div>;
+const page = async ({ params }: { params: paramsType }) => {
+  const { title, body } = await getPost(params.id);
+  const bodys = body.split('\n');
+
+  return (
+    <main className={styles.main}>
+      <h1 className={styles.title}>{title}</h1>
+      <div className={styles.article}>
+        {bodys.map((body, i) => (
+          <p key={i}>{body}</p>
+        ))}
+      </div>
+    </main>
+  );
 };
 export default page;
 
